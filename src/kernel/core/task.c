@@ -215,7 +215,7 @@ static void fcontext_entry_func(struct transfer_t from)
 	}
 }
 
-struct task_t * task_create(struct scheduler_t * sched, const char * path, task_func_t func, void * data, size_t stksz, int nice)
+struct task_t * task_create(struct scheduler_t * sched, task_func_t func, void * data, size_t stksz, int nice, const char * path, const char * fb)
 {
 	struct task_t * task;
 	void * stack;
@@ -270,7 +270,7 @@ struct task_t * task_create(struct scheduler_t * sched, const char * path, task_
 	task->func = func;
 	task->data = data;
 	task->__errno = 0;
-	task->__xfs_ctx = xfs_alloc(task->path);
+	task->__stage = stage_alloc(task->path, fb);
 
 	return task;
 }
@@ -284,8 +284,8 @@ void task_destroy(struct task_t * task)
 		task->sched->weight -= nice_to_weight[task->nice + 20];
 		spin_unlock(&task->sched->lock);
 
-		if(task->__xfs_ctx)
-			xfs_free(task->__xfs_ctx);
+		if(task->__stage)
+			stage_free(task->__stage);
 		if(task->path)
 			free(task->path);
 		free(task->stack);
@@ -407,7 +407,7 @@ static void smpboot_entry_func(int cpu)
 
 	machine_smpinit(cpu);
 
-	task = task_create(sched, "idle", idle_task, NULL, SZ_8K, 0);
+	task = task_create(sched, idle_task, (void *)cpu, SZ_8K, 0, "idle", NULL);
 	spin_lock(&sched->lock);
 	sched->weight -= task->weight;
 	task->nice = 26;
@@ -432,15 +432,16 @@ void scheduler_loop(void)
 {
 	struct scheduler_t * sched = scheduler_self();
 	struct task_t * task, * next;
+	int cpu = smp_processor_id();
 	int i;
 
 	for(i = 0; i < CONFIG_MAX_SMP_CPUS; i++)
 	{
-		if(smp_processor_id() != i)
+		if(i != cpu)
 			machine_smpboot(i, smpboot_entry_func);
 	}
 
-	task = task_create(sched, "idle", idle_task, NULL, SZ_8K, 0);
+	task = task_create(sched, idle_task, (void *)cpu, SZ_8K, 0, "idle", NULL);
 	spin_lock(&sched->lock);
 	sched->weight -= task->weight;
 	task->nice = 26;

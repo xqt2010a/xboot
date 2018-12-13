@@ -1,5 +1,5 @@
 /*
- * kernel/graphic/display.c
+ * kernel/graphic/stage.c
  *
  * Copyright(c) 2007-2018 Jianjun Jiang <8192542@qq.com>
  * Official site: http://xboot.org
@@ -27,4 +27,37 @@
  */
 
 #include <xboot.h>
-#include <graphic/display.h>
+#include <framebuffer/framebuffer.h>
+#include <graphic/stage.h>
+
+struct stage_t * stage_alloc(const char * path, const char * fb)
+{
+	struct framebuffer_t * fbdev = fb ? search_framebuffer(fb) : search_first_framebuffer();
+	struct stage_t * s;
+
+	if(!fbdev)
+		return NULL;
+
+	if(!is_absolute_path(path))
+		return NULL;
+
+	s = malloc(sizeof(struct stage_t));
+	if(!s)
+		return NULL;
+
+	s->xfs = xfs_alloc(path);
+	s->fb = fbdev;
+
+	return s;
+}
+
+void stage_free(struct stage_t * s)
+{
+	if(!s)
+		return;
+
+	if(s->xfs)
+		xfs_free(s->xfs);
+
+	free(s);
+}

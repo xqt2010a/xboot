@@ -5,9 +5,6 @@
 extern "C" {
 #endif
 
-#include <types.h>
-#include <math.h>
-
 /*
  * | [xx] [yx] [0] |
  * | [xy] [yy] [0] |

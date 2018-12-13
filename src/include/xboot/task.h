@@ -45,7 +45,7 @@ struct task_t {
 	void * data;
 
 	int __errno;
-	void * __xfs_ctx;
+	void * __stage;
 };
 
 struct scheduler_t {
@@ -69,7 +69,7 @@ static inline struct task_t * task_self(void)
 	return __sched[smp_processor_id()].running;
 }
 
-struct task_t * task_create(struct scheduler_t * sched, const char * path, task_func_t func, void * data, size_t stksz, int nice);
+struct task_t * task_create(struct scheduler_t * sched, task_func_t func, void * data, size_t stksz, int nice, const char * path, const char * fb);
 void task_destroy(struct task_t * task);
 void task_renice(struct task_t * task, int nice);
 void task_suspend(struct task_t * task);

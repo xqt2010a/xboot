@@ -30,6 +30,7 @@
 #include <cairoint.h>
 #include <cairo-ft.h>
 #include <xfs/xfs.h>
+#include <graphic/stage.h>
 #include <framework/display/l-display.h>
 
 struct lfont_t {
@@ -71,7 +72,7 @@ static void ft_xfs_stream_close(FT_Stream stream)
 
 static FT_Stream FT_New_Xfs_Stream(lua_State * L, const char * pathname)
 {
-	struct xfs_context_t * ctx = luahelper_task(L)->__xfs_ctx;
+	struct xfs_context_t * ctx = ((struct stage_t *)(luahelper_task(L)->__stage))->xfs;
 	FT_Stream stream = NULL;
 	struct xfs_file_t * file;
 

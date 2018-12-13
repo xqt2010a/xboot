@@ -60,7 +60,7 @@ static struct dobject_t * __dobject_alloc(enum dobject_type_t type, dobject_draw
 	o->anchorx = 0;
 	o->anchory = 0;
 	o->alpha = 1;
-	o->alignment = ALIGN_NONE;
+	o->alignment = XALIGN_NONE;
 	o->visible = 1;
 	o->touchable = 1;
 	o->mflag = 0;
@@ -263,7 +263,7 @@ void dobject_set_alpha(struct dobject_t * o, double alpha)
 	o->alpha = alpha;
 }
 
-void dobject_set_alignment(struct dobject_t * o, enum alignment_t align)
+void dobject_set_alignment(struct dobject_t * o, enum xalignment_t align)
 {
 	o->alignment = align;
 }

@@ -29,6 +29,7 @@
 #include <cairo.h>
 #include <cairoint.h>
 #include <xfs/xfs.h>
+#include <graphic/stage.h>
 #include <framework/display/l-display.h>
 
 static cairo_status_t xfs_read_func(void * closure, unsigned char * data, unsigned int size)
@@ -52,7 +53,7 @@ static cairo_status_t xfs_read_func(void * closure, unsigned char * data, unsign
 
 static cairo_surface_t * cairo_image_surface_create_from_png_xfs(lua_State * L, const char * filename)
 {
-	struct xfs_context_t * ctx = luahelper_task(L)->__xfs_ctx;
+	struct xfs_context_t * ctx = ((struct stage_t *)(luahelper_task(L)->__stage))->xfs;
 	struct xfs_file_t * file;
 	cairo_surface_t * surface;
 
