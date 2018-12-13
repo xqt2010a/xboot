@@ -5,15 +5,18 @@
 extern "C" {
 #endif
 
+#include <cairo-xboot.h>
 #include <xfs/xfs.h>
 #include <framebuffer/framebuffer.h>
 #include <graphic/dobject.h>
 
 struct stage_t
 {
+	struct dobject_t o;
 	struct xfs_context_t * xfs;
 	struct framebuffer_t * fb;
-	struct dobject_t o;
+	cairo_surface_t * cs;
+	cairo_t * cr;
 };
 
 struct stage_t * stage_alloc(const char * path, const char * fb);

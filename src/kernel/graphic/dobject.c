@@ -37,13 +37,10 @@ enum {
 	MFLAG_LOCAL_MATRIX	= (0x1 << 4),
 };
 
-static struct dobject_t * __dobject_alloc(enum dobject_type_t type, dobject_draw_t draw, void * priv)
+bool_t dobject_init(struct dobject_t * o, enum dobject_type_t type, dobject_draw_t draw, void * priv)
 {
-	struct dobject_t * o;
-
-	o = malloc(sizeof(struct dobject_t));
 	if(!o)
-		return NULL;
+		return FALSE;
 
 	o->type = type;
 	o->parent = o;
@@ -70,24 +67,6 @@ static struct dobject_t * __dobject_alloc(enum dobject_type_t type, dobject_draw
 	o->draw = draw;
 	o->priv = priv;
 
-	return o;
-}
-
-struct dobject_t * dobject_alloc_container(void)
-{
-	return __dobject_alloc(DOBJECT_TYPE_CONTAINER, NULL, NULL);
-}
-
-struct dobject_t * dobject_alloc_node(dobject_draw_t draw, void * priv)
-{
-	return __dobject_alloc(DOBJECT_TYPE_NODE, draw, priv);
-}
-
-bool_t dobject_free(struct dobject_t * o)
-{
-	if(!o)
-		return FALSE;
-	free(o);
 	return TRUE;
 }
 

@@ -67,9 +67,7 @@ struct dobject_t
 
 typedef void (*dobject_draw_t)(struct dobject_t * o, struct stage_t * s);
 
-struct dobject_t * dobject_alloc_container(void);
-struct dobject_t * dobject_alloc_node(dobject_draw_t draw, void * priv);
-bool_t dobject_free(struct dobject_t * o);
+bool_t dobject_init(struct dobject_t * o, enum dobject_type_t type, dobject_draw_t draw, void * priv);
 bool_t dobject_add(struct dobject_t * parent, struct dobject_t * o);
 bool_t dobject_remove(struct dobject_t * parent, struct dobject_t * o);
 bool_t dobject_remove_self(struct dobject_t * o);

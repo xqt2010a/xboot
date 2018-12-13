@@ -47,6 +47,9 @@ struct stage_t * stage_alloc(const char * path, const char * fb)
 
 	s->xfs = xfs_alloc(path);
 	s->fb = fbdev;
+	s->cs = cairo_xboot_surface_create(s->fb, NULL);
+	s->cr = cairo_create(s->cs);
+	dobject_init(&s->o, DOBJECT_TYPE_CONTAINER, NULL, NULL);
 
 	return s;
 }
@@ -56,8 +59,9 @@ void stage_free(struct stage_t * s)
 	if(!s)
 		return;
 
-	if(s->xfs)
-		xfs_free(s->xfs);
+	xfs_free(s->xfs);
+	cairo_destroy(s->cr);
+	cairo_surface_destroy(s->cs);
 
 	free(s);
 }
