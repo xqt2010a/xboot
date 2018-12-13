@@ -62,6 +62,7 @@ void stage_free(struct stage_t * s)
 	xfs_free(s->xfs);
 	cairo_destroy(s->cr);
 	cairo_surface_destroy(s->cs);
+	dobject_remove_self(&s->o);
 
 	free(s);
 }

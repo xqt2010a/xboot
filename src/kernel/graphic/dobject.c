@@ -109,7 +109,6 @@ bool_t dobject_remove_self(struct dobject_t * o)
 {
 	struct dobject_t * parent;
 	struct dobject_t * pos, * n;
-	bool_t ret;
 
 	if(!o)
 		return FALSE;
@@ -125,13 +124,8 @@ bool_t dobject_remove_self(struct dobject_t * o)
 	parent = o->parent;
 	if(parent && (parent != o))
 	{
-		ret = dobject_remove(parent, o);
-		if(ret)
-			dobject_free(o);
-		return ret;
+		return dobject_remove(parent, o);
 	}
-
-	dobject_free(o);
 	return TRUE;
 }
 
