@@ -1,3 +1,6 @@
+require("main")
+
+--[[
 ---
 -- Builtin module
 --
@@ -51,3 +54,4 @@ Widget = {
 assets = Assets.new()
 timermanager = TimerManager.new()
 require("main")
+--]]

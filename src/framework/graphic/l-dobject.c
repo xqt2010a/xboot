@@ -205,7 +205,7 @@ static int m_get_alpha(lua_State * L)
 static int m_set_alignment(lua_State * L)
 {
 	struct dobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
-	dobject_set_alignment(o, (enum xalignment_t)luaL_checkinteger(L, 2));
+	dobject_set_alignment(o, (enum alignment_t)luaL_checkinteger(L, 2));
 	return 0;
 }
 
@@ -479,7 +479,6 @@ int luaopen_dobject(lua_State * L)
 {
 	luaL_newlib(L, l_dobject);
 	/* enum alignment_t */
-#if 0
 	luahelper_set_intfield(L, "ALIGN_NONE", 				ALIGN_NONE);
 	luahelper_set_intfield(L, "ALIGN_LEFT", 				ALIGN_LEFT);
 	luahelper_set_intfield(L, "ALIGN_TOP", 					ALIGN_TOP);
@@ -503,7 +502,6 @@ int luaopen_dobject(lua_State * L)
 	luahelper_set_intfield(L, "ALIGN_HORIZONTAL_FILL", 		ALIGN_HORIZONTAL_FILL);
 	luahelper_set_intfield(L, "ALIGN_VERTICAL_FILL", 		ALIGN_VERTICAL_FILL);
 	luahelper_set_intfield(L, "ALIGN_CENTER_FILL", 			ALIGN_CENTER_FILL);
-#endif
 	luahelper_create_metatable(L, MT_DOBJECT, m_dobject);
 	return 1;
 }

@@ -32,11 +32,11 @@
 #include <framework/luahelper.h>
 #include <framework/lang/l-debugger.h>
 #include <framework/lang/l-class.h>
+#include <framework/base64/l-base64.h>
+#include <framework/stopwatch/l-stopwatch.h>
 #include <framework/event/l-event.h>
 #include <framework/event/l-event-dispatcher.h>
-#include <framework/stopwatch/l-stopwatch.h>
-#include <framework/base64/l-base64.h>
-#include <framework/display/l-display.h>
+#include <framework/graphic/l-graphic.h>
 #include <framework/hardware/l-hardware.h>
 #include <framework/vm.h>
 
@@ -63,6 +63,7 @@ static void luaopen_glblibs(lua_State * L)
 static void luaopen_prelibs(lua_State * L)
 {
 	const luaL_Reg prelibs[] = {
+#if 0
 		{ "builtin.json",			luaopen_cjson_safe },
 		{ "builtin.base64",			luaopen_base64 },
 
@@ -76,6 +77,9 @@ static void luaopen_prelibs(lua_State * L)
 		{ "builtin.shape",			luaopen_shape },
 		{ "builtin.font",			luaopen_font },
 		{ "builtin.display",		luaopen_display },
+#endif
+
+		{ "graphic.dobject",		luaopen_dobject },
 
 		{ "hardware.adc",			luaopen_hardware_adc },
 		{ "hardware.battery",		luaopen_hardware_battery },

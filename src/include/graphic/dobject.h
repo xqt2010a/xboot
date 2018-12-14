@@ -16,7 +16,7 @@ enum dobject_type_t {
 	DOBJECT_TYPE_NODE,
 };
 
-enum xalignment_t {
+enum alignment_t {
 	XALIGN_NONE				= 0,
 	XALIGN_LEFT				= 1,
 	XALIGN_TOP				= 2,
@@ -69,7 +69,7 @@ struct dobject_t
 	double scalex, scaley;
 	double anchorx, anchory;
 	double alpha;
-	enum xalignment_t alignment;
+	enum alignment_t alignment;
 	int visible;
 	int touchable;
 	int mflag;
@@ -192,7 +192,7 @@ static inline void dobject_set_alpha(struct dobject_t * o, double alpha)
 	o->alpha = alpha;
 }
 
-static inline void dobject_set_alignment(struct dobject_t * o, enum xalignment_t align)
+static inline void dobject_set_alignment(struct dobject_t * o, enum alignment_t align)
 {
 	o->alignment = align;
 }
