@@ -8,6 +8,7 @@ extern "C" {
 #include <cairo.h>
 #include <framework/luahelper.h>
 
+#define	MT_STAGE		"__mt_stage__"
 #define	MT_DOBJECT		"__mt_dobject__"
 #define	MT_TEXTURE		"__mt_texture__"
 
@@ -15,6 +16,7 @@ struct ltexture_t {
 	cairo_surface_t * surface;
 };
 
+int luaopen_stage(lua_State * L);
 int luaopen_dobject(lua_State * L);
 int luaopen_texture(lua_State * L);
 

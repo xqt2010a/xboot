@@ -50,6 +50,7 @@ struct stage_t * stage_alloc(const char * path, const char * fb)
 	s->cs = cairo_xboot_surface_create(s->fb, NULL);
 	s->cr = cairo_create(s->cs);
 	dobject_init(&s->o, DOBJECT_TYPE_CONTAINER, NULL, NULL);
+	dobject_set_size(&s->o, framebuffer_get_width(s->fb), framebuffer_get_height(s->fb));
 
 	return s;
 }
