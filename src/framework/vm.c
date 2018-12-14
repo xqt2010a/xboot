@@ -79,6 +79,7 @@ static void luaopen_prelibs(lua_State * L)
 		{ "builtin.display",		luaopen_display },
 #endif
 
+		{ "graphic.stage",			luaopen_stage },
 		{ "graphic.dobject",		luaopen_dobject },
 		{ "graphic.texture",		luaopen_texture },
 
@@ -120,6 +121,7 @@ static void luaopen_prelibs(lua_State * L)
 }
 
 static const char boot_lua[] = X(
+	Stage = require "graphic.stage"
 	Dobject = require "graphic.dobject"
 	Texture = require "graphic.texture"
 
