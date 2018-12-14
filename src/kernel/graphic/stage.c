@@ -49,7 +49,7 @@ struct stage_t * stage_alloc(const char * path, const char * fb)
 	s->fb = fbdev;
 	s->cs = cairo_xboot_surface_create(s->fb, NULL);
 	s->cr = cairo_create(s->cs);
-	dobject_init(&s->o, DOBJECT_TYPE_CONTAINER, NULL, NULL);
+	dobject_init(&s->o, DOBJECT_TYPE_CONTAINER, NULL, DRAW_TYPE_NONE, NULL);
 
 	return s;
 }

@@ -159,6 +159,7 @@ SRCDIRS		+=	arch/$(ARCH)/lib/cpu						\
 				framework/base64							\
 				framework/display							\
 				framework/event								\
+				framework/graphic							\
 				framework/hardware							\
 				framework/lang								\
 				framework/stopwatch
