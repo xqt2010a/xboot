@@ -80,6 +80,7 @@ static void luaopen_prelibs(lua_State * L)
 #endif
 
 		{ "graphic.dobject",		luaopen_dobject },
+		{ "graphic.texture",		luaopen_texture },
 
 		{ "hardware.adc",			luaopen_hardware_adc },
 		{ "hardware.battery",		luaopen_hardware_battery },
@@ -118,9 +119,19 @@ static void luaopen_prelibs(lua_State * L)
 	}
 }
 
+static const char boot_lua[] = X(
+	Dobject = require "graphic.dobject"
+	Texture = require "graphic.texture"
+
+	DisplayObject = require "xboot.display.DisplayObject"
+	DisplayImage = require "xboot.display.DisplayImage"
+
+	require("main")
+);
+
 static int luaopen_boot(lua_State * L)
 {
-	if(luaL_loadfile(L, "/framework/xboot/boot.lua") == LUA_OK)
+	if(luaL_loadbuffer(L, boot_lua, sizeof(boot_lua)-1, "Boot.lua") == LUA_OK)
 		lua_call(L, 0, 0);
 	return 0;
 }

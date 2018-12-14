@@ -28,13 +28,29 @@
 
 #include <cairo.h>
 #include <cairoint.h>
+#include <graphic/stage.h>
 #include <graphic/dobject.h>
 #include <framework/graphic/l-graphic.h>
+
+static void dobject_texture_draw(struct dobject_t * o, struct stage_t * s)
+{
+	struct ltexture_t * tex = o->priv;
+	cairo_t * cr = s->cr;
+	cairo_save(cr);
+	cairo_set_matrix(cr, (cairo_matrix_t *)dobject_global_matrix(o));
+	cairo_set_source_surface(cr, tex->surface, 0, 0);
+	cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_FAST);
+	cairo_paint_with_alpha(cr, o->alpha);
+	cairo_restore(cr);
+}
 
 static int l_dobject_new(lua_State * L)
 {
 	struct dobject_t * o = lua_newuserdata(L, sizeof(struct dobject_t));
-	dobject_init(o, DOBJECT_TYPE_CONTAINER, NULL, DRAW_TYPE_NONE, NULL);
+	if(luaL_testudata(L, 1, MT_TEXTURE))
+		dobject_init(o, DOBJECT_TYPE_NODE, dobject_texture_draw, lua_touserdata(L, 1));
+	else
+		dobject_init(o, DOBJECT_TYPE_CONTAINER, NULL, NULL);
 	luaL_setmetatable(L, MT_DOBJECT);
 	return 1;
 }
@@ -43,6 +59,43 @@ static const luaL_Reg l_dobject[] = {
 	{"new",	l_dobject_new},
 	{NULL,	NULL}
 };
+
+static int m_add_child(lua_State * L)
+{
+	struct dobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	struct dobject_t * c = luaL_checkudata(L, 2, MT_DOBJECT);
+	lua_pushboolean(L, dobject_add(o, c));
+	return 1;
+}
+
+static int m_remove_child(lua_State * L)
+{
+	struct dobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	struct dobject_t * c = luaL_checkudata(L, 2, MT_DOBJECT);
+	lua_pushboolean(L, dobject_remove(o, c));
+	return 1;
+}
+
+static int m_remove_self(lua_State * L)
+{
+	struct dobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushboolean(L, dobject_remove_self(o));
+	return 1;
+}
+
+static int m_to_front(lua_State * L)
+{
+	struct dobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushboolean(L, dobject_to_front(o));
+	return 1;
+}
+
+static int m_to_back(lua_State * L)
+{
+	struct dobject_t * o = luaL_checkudata(L, 1, MT_DOBJECT);
+	lua_pushboolean(L, dobject_to_back(o));
+	return 1;
+}
 
 static int m_set_size(lua_State * L)
 {
@@ -441,6 +494,11 @@ static int m_layout(lua_State * L)
 }
 
 static const luaL_Reg m_dobject[] = {
+	{"addChild",				m_add_child},
+	{"removeChild",				m_remove_child},
+	{"removeSelf",				m_remove_self},
+	{"toFront",					m_to_front},
+	{"toBack",					m_to_back},
 	{"setSize",					m_set_size},
 	{"getSize",					m_get_size},
 	{"setX",					m_set_x},

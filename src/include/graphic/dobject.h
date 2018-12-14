@@ -8,8 +8,10 @@ extern "C" {
 #include <list.h>
 #include <graphic/matrix.h>
 
-struct stage_t;
 struct dobject_t;
+struct stage_t;
+
+typedef void (*dobject_draw_t)(struct dobject_t * o, struct stage_t * s);
 
 enum dobject_type_t {
 	DOBJECT_TYPE_CONTAINER,
@@ -17,36 +19,30 @@ enum dobject_type_t {
 };
 
 enum alignment_t {
-	XALIGN_NONE				= 0,
-	XALIGN_LEFT				= 1,
-	XALIGN_TOP				= 2,
-	XALIGN_RIGHT			= 3,
-	XALIGN_BOTTOM			= 4,
-	XALIGN_LEFT_TOP			= 5,
-	XALIGN_RIGHT_TOP		= 6,
-	XALIGN_LEFT_BOTTOM		= 7,
-	XALIGN_RIGHT_BOTTOM		= 8,
-	XALIGN_LEFT_CENTER		= 9,
-	XALIGN_TOP_CENTER		= 10,
-	XALIGN_RIGHT_CENTER		= 11,
-	XALIGN_BOTTOM_CENTER	= 12,
-	XALIGN_HORIZONTAL_CENTER	= 13,
-	XALIGN_VERTICAL_CENTER	= 14,
-	XALIGN_CENTER			= 15,
-	XALIGN_LEFT_FILL		= 16,
-	XALIGN_TOP_FILL			= 17,
-	XALIGN_RIGHT_FILL		= 18,
-	XALIGN_BOTTOM_FILL		= 19,
-	XALIGN_HORIZONTAL_FILL	= 20,
-	XALIGN_VERTICAL_FILL	= 21,
-	XALIGN_CENTER_FILL		= 22,
+	ALIGN_NONE				= 0,
+	ALIGN_LEFT				= 1,
+	ALIGN_TOP				= 2,
+	ALIGN_RIGHT				= 3,
+	ALIGN_BOTTOM			= 4,
+	ALIGN_LEFT_TOP			= 5,
+	ALIGN_RIGHT_TOP			= 6,
+	ALIGN_LEFT_BOTTOM		= 7,
+	ALIGN_RIGHT_BOTTOM		= 8,
+	ALIGN_LEFT_CENTER		= 9,
+	ALIGN_TOP_CENTER		= 10,
+	ALIGN_RIGHT_CENTER		= 11,
+	ALIGN_BOTTOM_CENTER		= 12,
+	ALIGN_HORIZONTAL_CENTER	= 13,
+	ALIGN_VERTICAL_CENTER	= 14,
+	ALIGN_CENTER			= 15,
+	ALIGN_LEFT_FILL			= 16,
+	ALIGN_TOP_FILL			= 17,
+	ALIGN_RIGHT_FILL		= 18,
+	ALIGN_BOTTOM_FILL		= 19,
+	ALIGN_HORIZONTAL_FILL	= 20,
+	ALIGN_VERTICAL_FILL		= 21,
+	ALIGN_CENTER_FILL		= 22,
 };
-
-enum draw_type_t {
-	DRAW_TYPE_NONE			= 0,
-	DRAW_TYPE_TEXTURE		= 1,
-};
-typedef void (*dobject_draw_t)(struct dobject_t * o, struct stage_t * s);
 
 enum {
 	MFLAG_TRANSLATE		= (0x1 << 0),
@@ -77,9 +73,15 @@ struct dobject_t
 	struct matrix_t global_matrix;
 
 	void (*draw)(struct dobject_t * o, struct stage_t * s);
-	enum draw_type_t dtype;
 	void * priv;
 };
+
+bool_t dobject_init(struct dobject_t * o, enum dobject_type_t type, dobject_draw_t draw, void * priv);
+bool_t dobject_add(struct dobject_t * parent, struct dobject_t * o);
+bool_t dobject_remove(struct dobject_t * parent, struct dobject_t * o);
+bool_t dobject_remove_self(struct dobject_t * o);
+bool_t dobject_to_front(struct dobject_t * o);
+bool_t dobject_to_back(struct dobject_t * o);
 
 static inline void dobject_set_width(struct dobject_t * o, double w)
 {
@@ -207,75 +209,12 @@ static inline void dobject_set_touchable(struct dobject_t * o, int touchable)
 	o->touchable = touchable ? 1 : 0;
 }
 
-static inline struct matrix_t * dobject_local_matrix(struct dobject_t * o)
-{
-	struct matrix_t * m = &o->local_matrix;
-	if(o->mflag & MFLAG_LOCAL_MATRIX)
-	{
-		matrix_init_identity(m);
-		if(o->mflag & MFLAG_TRANSLATE)
-			matrix_translate(m, o->x, o->y);
-		if(o->mflag & MFLAG_ROTATE)
-			matrix_rotate(m, o->rotation);
-		if(o->mflag & MFLAG_ANCHOR)
-			matrix_translate(m, -o->anchorx * o->width * o->scalex, -o->anchory * o->height * o->scaley);
-		if(o->mflag & MFLAG_SCALE)
-			matrix_scale(m, o->scalex, o->scaley);
-		o->mflag &= ~(MFLAG_LOCAL_MATRIX);
-	}
-	return m;
-}
-
-static inline struct matrix_t * dobject_global_matrix(struct dobject_t * o)
-{
-	struct dobject_t * t = o;
-	struct matrix_t m;
-
-	matrix_init_identity(&m);
-	while((o->parent != o))
-	{
-		matrix_multiply(&m, &m, dobject_local_matrix(o));
-		o = o->parent;
-	}
-	memcpy(&t->global_matrix, &m, sizeof(struct matrix_t));
-	return &t->global_matrix;
-}
-
-static inline void dobject_bounds(struct dobject_t * o, double * x1, double * y1, double * x2, double * y2)
-{
-	struct matrix_t * m = dobject_global_matrix(o);
-	*x1 = 0;
-	*y1 = 0;
-	*x2 = o->width;
-	*y2 = o->height;
-	matrix_transform_bounds(m, x1, y1, x2, y2);
-}
-
-static inline void dobject_global_to_local(struct dobject_t * o, double * x, double * y)
-{
-	struct matrix_t m;
-
-	memcpy(&m, dobject_global_matrix(o), sizeof(struct matrix_t));
-	matrix_invert(&m);
-	matrix_transform_point(&m, x, y);
-}
-
-static inline void dobject_local_to_global(struct dobject_t * o, double * x, double * y)
-{
-	struct matrix_t * m = dobject_global_matrix(o);
-	matrix_transform_point(m, x, y);
-}
-
-static inline int dobject_hit_test_point(struct dobject_t * o, double x, double y)
-{
-	dobject_global_to_local(o, &x, &y);
-	return ((x >= 0) && (y >= 0) && (x <= o->width) && (y <= o->height)) ? 1 : 0;
-}
-
-bool_t dobject_init(struct dobject_t * o, enum dobject_type_t type, dobject_draw_t draw, enum draw_type_t dtype, void * priv);
-bool_t dobject_add(struct dobject_t * parent, struct dobject_t * o);
-bool_t dobject_remove(struct dobject_t * parent, struct dobject_t * o);
-bool_t dobject_remove_self(struct dobject_t * o);
+struct matrix_t * dobject_local_matrix(struct dobject_t * o);
+struct matrix_t * dobject_global_matrix(struct dobject_t * o);
+void dobject_bounds(struct dobject_t * o, double * x1, double * y1, double * x2, double * y2);
+void dobject_global_to_local(struct dobject_t * o, double * x, double * y);
+void dobject_local_to_global(struct dobject_t * o, double * x, double * y);
+int dobject_hit_test_point(struct dobject_t * o, double x, double y);
 
 #ifdef __cplusplus
 }
