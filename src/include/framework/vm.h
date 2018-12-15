@@ -5,6 +5,20 @@
 extern "C" {
 #endif
 
+#include <xfs/xfs.h>
+#include <framebuffer/framebuffer.h>
+#include <graphic/dobject.h>
+#include <cairo-xboot.h>
+
+struct vmctx_t
+{
+	struct xfs_context_t * xfs;
+	struct framebuffer_t * fb;
+	struct dobject_t * o;
+	cairo_surface_t * cs;
+	cairo_t * cr;
+};
+
 int vmexec(const char * path, const char * fb);
 
 #ifdef __cplusplus

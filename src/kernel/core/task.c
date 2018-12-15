@@ -27,7 +27,6 @@
  */
 
 #include <xboot.h>
-#include <xfs/xfs.h>
 #include <xboot/task.h>
 
 struct transfer_t
@@ -215,7 +214,7 @@ static void fcontext_entry_func(struct transfer_t from)
 	}
 }
 
-struct task_t * task_create(struct scheduler_t * sched, task_func_t func, void * data, size_t stksz, int nice, const char * path, const char * fb)
+struct task_t * task_create(struct scheduler_t * sched, const char * name, task_func_t func, void * data, size_t stksz, int nice)
 {
 	struct task_t * task;
 	void * stack;
@@ -255,7 +254,7 @@ struct task_t * task_create(struct scheduler_t * sched, task_func_t func, void *
 	sched->weight += nice_to_weight[nice + 20];
 	spin_unlock(&sched->lock);
 
-	task->path = strdup(path);
+	task->name = strdup(name);
 	task->status = TASK_STATUS_SUSPEND;
 	task->start = ktime_to_ns(ktime_get());
 	task->time = 0;
@@ -270,7 +269,6 @@ struct task_t * task_create(struct scheduler_t * sched, task_func_t func, void *
 	task->func = func;
 	task->data = data;
 	task->__errno = 0;
-	task->__stage = stage_alloc(task->path, fb);
 
 	return task;
 }
@@ -284,10 +282,8 @@ void task_destroy(struct task_t * task)
 		task->sched->weight -= nice_to_weight[task->nice + 20];
 		spin_unlock(&task->sched->lock);
 
-		if(task->__stage)
-			stage_free(task->__stage);
-		if(task->path)
-			free(task->path);
+		if(task->name)
+			free(task->name);
 		free(task->stack);
 		free(task);
 	}
@@ -407,7 +403,7 @@ static void smpboot_entry_func(int cpu)
 
 	machine_smpinit(cpu);
 
-	task = task_create(sched, idle_task, (void *)cpu, SZ_8K, 0, "idle", NULL);
+	task = task_create(sched, "idle", idle_task, (void *)(unsigned long)cpu, SZ_8K, 0);
 	spin_lock(&sched->lock);
 	sched->weight -= task->weight;
 	task->nice = 26;
@@ -441,7 +437,7 @@ void scheduler_loop(void)
 			machine_smpboot(i, smpboot_entry_func);
 	}
 
-	task = task_create(sched, idle_task, (void *)cpu, SZ_8K, 0, "idle", NULL);
+	task = task_create(sched, "idle", idle_task, (void *)(unsigned long)cpu, SZ_8K, 0);
 	spin_lock(&sched->lock);
 	sched->weight -= task->weight;
 	task->nice = 26;

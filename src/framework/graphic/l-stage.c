@@ -32,6 +32,7 @@
 #include <graphic/dobject.h>
 #include <framework/graphic/l-graphic.h>
 
+#if 0
 static int l_stage_new(lua_State * L)
 {
 	struct stage_t * s = (struct stage_t *)(luahelper_task(L)->__stage);
@@ -352,3 +353,5 @@ int luaopen_stage(lua_State * L)
 	luahelper_create_metatable(L, MT_STAGE, m_stage);
 	return 1;
 }
+
+#endif

@@ -54,7 +54,7 @@ int xboot_main(int argc, char * argv[])
 
 #if	defined(CONFIG_SHELL_TASK) && (CONFIG_SHELL_TASK > 0)
 	/* Create shell task */
-	struct task_t * task = task_create(NULL, shell_task, NULL, 0, 0, "shell", NULL);
+	struct task_t * task = task_create(NULL, "shell", shell_task, NULL, 0, 0);
 
 	/* Resume shell task */
 	task_resume(task);
